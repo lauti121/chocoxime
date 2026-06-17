@@ -1,0 +1,63 @@
+/* ── OPTIMIZACIÓN DE IMÁGENES Y CONTENEDORES (INDEX Y CATÁLOGO) ── */
+.product-card-img {
+  position: relative;
+  overflow: hidden;
+  height: 240px; /* Altura fija estándar para evitar desalineaciones */
+  background-color: var(--cream-bg);
+}
+
+.product-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Recorta la imagen proporcionalmente sin deformarla */
+  object-position: center;
+  transition: transform 0.4s ease;
+}
+
+/* Evita que las imágenes grandes del detalle del producto se desborden */
+.product-gallery #pd-img {
+  width: 100%;
+  max-height: 450px;
+  object-fit: cover;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+
+.gallery-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+}
+
+.gallery-thumb {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color var(--transition);
+}
+
+.gallery-thumb.active, .gallery-thumb:hover {
+  border-color: var(--gold);
+}
+
+/* Corrección para la grilla en dispositivos móviles */
+@media (max-width: 600px) {
+  .catalog-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+  .product-card-img {
+    height: 160px; /* Altura reducida en móviles para mejor UX */
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    padding: 4rem 5% 2rem;
+  }
+  .hero-img-wrap img {
+    height: 320px;
+  }
+}
