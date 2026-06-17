@@ -12,8 +12,9 @@ let selectedVariant = "Única";
 let selectedStar = 0;
 let currentUser = null;
 let history = [];
+let SITE_CONFIG = {};
 
-const BACKEND_URL = 'https://tu-backend.cl'; // ⚠️ Cambia por la URL real de tu API/Server Node
+let BACKEND_URL = 'https://tu-backend.cl'; // ⚠️ Cambia por la URL real de tu API/Server Node
 
 /* ── UTILIDADES ──────────────────────────────────────────── */
 const fmt = (n) => '$' + Number(n).toLocaleString('es-CL');
@@ -28,6 +29,54 @@ function showToast(msg) {
 }
 
 /* ── CONEXIÓN CON LA BASE DE DATOS ───────────────────────── */
+async function loadSiteConfig() {
+  try {
+    const response = await fetch('get_config.php');
+    const dataFromDB = await response.json();
+
+    if (dataFromDB.error) {
+      console.error(dataFromDB.error);
+      return;
+    }
+
+    SITE_CONFIG = dataFromDB.reduce((acc, row) => {
+      acc[row.config_key] = row.config_value;
+      return acc;
+    }, {});
+
+    applySiteConfig();
+  } catch (error) {
+    console.error('Error al cargar la configuración del sitio:', error);
+  }
+}
+
+function applySiteConfig() {
+  if (SITE_CONFIG.backend_url) {
+    BACKEND_URL = SITE_CONFIG.backend_url;
+  }
+
+  if (SITE_CONFIG.store_name) {
+    document.title = SITE_CONFIG.store_name;
+    document.querySelectorAll('[data-site-name], .site-name, .brand-name').forEach(el => {
+      el.textContent = SITE_CONFIG.store_name;
+    });
+  }
+
+  const heroImage = SITE_CONFIG.hero_image;
+  if (heroImage) {
+    document.querySelectorAll('.hero-img-wrap img, #hero-img, [data-site-image="hero"]').forEach(el => {
+      el.src = heroImage;
+    });
+  }
+
+  const aboutImage = SITE_CONFIG.about_image;
+  if (aboutImage) {
+    document.querySelectorAll('.about-img-wrap img, .about-img img, #about-img, [data-site-image="about"]').forEach(el => {
+      el.src = aboutImage;
+    });
+  }
+}
+
 async function loadProductsFromDB() {
   try {
     const response = await fetch('get_productos.php'); 
@@ -306,7 +355,7 @@ async function checkout() {
       id:       item.id,
       name:     item.name,
       price:    item.price,        
-      quantity: item.quantity,
+      quantity: item.qty,
       img:      item.img
     }));
 
@@ -433,6 +482,7 @@ function sendContact(e) {
 
 /* ── INICIALIZACIÓN DE LA APLICACIÓN ────────────────────── */
 window.addEventListener('DOMContentLoaded', () => {
+  loadSiteConfig();
   loadProductsFromDB(); 
 
   document.getElementById('cart-overlay').addEventListener('click', function(e) {
